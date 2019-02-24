@@ -32,6 +32,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
 
             double aimRating = Math.Sqrt(skills[0].DifficultyValue()) * difficulty_multiplier;
             double speedRating = Math.Sqrt(skills[1].DifficultyValue()) * difficulty_multiplier;
+            double flashlightRating = Math.Sqrt(skills[2].DifficultyValue()) * difficulty_multiplier;
             double starRating = aimRating + speedRating + Math.Abs(aimRating - speedRating) / 2;
 
             // Todo: These int casts are temporary to achieve 1:1 results with osu!stable, and should be removed in the future
@@ -48,6 +49,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
                 Mods = mods,
                 AimStrain = aimRating,
                 SpeedStrain = speedRating,
+                FlashlightStrain = flashlightRating,
                 ApproachRate = preempt > 1200 ? (1800 - preempt) / 120 : (1200 - preempt) / 150 + 5,
                 OverallDifficulty = (80 - hitWindowGreat) / 6,
                 MaxCombo = maxCombo
@@ -71,7 +73,8 @@ namespace osu.Game.Rulesets.Osu.Difficulty
         protected override Skill[] CreateSkills(IBeatmap beatmap) => new Skill[]
         {
             new Aim(),
-            new Speed()
+            new Speed(),
+            new Flashlight()
         };
 
         protected override Mod[] DifficultyAdjustmentMods => new Mod[]

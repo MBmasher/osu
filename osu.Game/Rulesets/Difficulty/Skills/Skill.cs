@@ -19,6 +19,8 @@ namespace osu.Game.Rulesets.Difficulty.Skills
         /// </summary>
         public IList<double> StrainPeaks => strainPeaks;
 
+        public double timeMultiplier(DifficultyHitObject current) => 0.5 - Math.Tanh((current.DeltaTime - 100.0) / 50.0) / 2.0;
+		
         /// <summary>
         /// Strain values are multiplied by this number for the given skill. Used to balance the value of different skills between each other.
         /// </summary>
@@ -44,6 +46,7 @@ namespace osu.Game.Rulesets.Difficulty.Skills
         private double currentSectionPeak = 1; // We also keep track of the peak strain level in the current section.
 
         private readonly List<double> strainPeaks = new List<double>();
+        private readonly List<Tuple<DifficultyHitObject, double>> objPeaks = new List<Tuple<DifficultyHitObject, double>>();
 
         /// <summary>
         /// Process a <see cref="DifficultyHitObject"/> and update current strain values accordingly.
@@ -52,6 +55,8 @@ namespace osu.Game.Rulesets.Difficulty.Skills
         {
             currentStrain *= strainDecay(current.DeltaTime);
             currentStrain += StrainValueOf(current) * SkillMultiplier;
+
+            objPeaks.Add(new Tuple<DifficultyHitObject, double>(current, currentStrain));
 
             currentSectionPeak = Math.Max(currentStrain, currentSectionPeak);
 
@@ -85,6 +90,7 @@ namespace osu.Game.Rulesets.Difficulty.Skills
         public double DifficultyValue()
         {
             strainPeaks.Sort((a, b) => b.CompareTo(a)); // Sort from highest to lowest strain.
+            objPeaks.Sort((a, b) => a.Item2.CompareTo(b.Item2)); // Sort from highest to lowest strain.
 
             double difficulty = 0;
             double weight = 1;

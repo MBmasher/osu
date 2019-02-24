@@ -47,6 +47,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
             this.lastObject = (OsuHitObject)lastObject;
 
             setDistances();
+            setCombo((OsuHitObject)hitObject, this.lastObject, this.lastLastObject);
 
             // Every strain interval is hard capped at the equivalent of 375 BPM streaming speed as a safety measure
             StrainTime = Math.Max(50, DeltaTime);
@@ -85,6 +86,27 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
                 float det = v1.X * v2.Y - v1.Y * v2.X;
 
                 Angle = Math.Abs(Math.Atan2(det, dot));
+            }
+        }
+
+        private void setCombo(OsuHitObject current, OsuHitObject last, OsuHitObject lastLast)
+        {
+            if (lastLast == null)
+            {
+                last.CumulativeCombo = getCombo(last);
+            }
+            current.CumulativeCombo = last.CumulativeCombo + getCombo(current);
+        }
+
+        private double getCombo(OsuHitObject hitObject)
+        {
+            var hitObjectSlider = hitObject as Slider;
+            if (hitObjectSlider != null)
+            {
+                return hitObjectSlider.ComboWorth;
+            } else
+            {
+                return 1;
             }
         }
 
