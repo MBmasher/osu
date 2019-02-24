@@ -22,6 +22,11 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
         public double JumpDistance { get; private set; }
 
         /// <summary>
+        /// Raw distance from the end position of the previous <see cref="OsuDifficultyHitObject"/> to the start position of this <see cref="OsuDifficultyHitObject"/>.
+        /// </summary>
+        public double RawJumpDistance { get; private set; }
+
+        /// <summary>
         /// Normalized distance between the start and end position of the previous <see cref="OsuDifficultyHitObject"/>.
         /// </summary>
         public double TravelDistance { get; private set; }
@@ -73,8 +78,11 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
 
             // Don't need to jump to reach spinners
             if (!(BaseObject is Spinner))
+            {
                 JumpDistance = (BaseObject.StackedPosition * scalingFactor - lastCursorPosition * scalingFactor).Length;
-
+                RawJumpDistance = (BaseObject.StackedPosition - lastCursorPosition).Length;
+            }
+                
             if (lastLastObject != null)
             {
                 Vector2 lastLastCursorPosition = getEndCursorPosition(lastLastObject);
