@@ -79,7 +79,7 @@ namespace osu.Game.Rulesets.Mania.Difficulty
                 yield return new ManiaDifficultyHitObject(beatmap.HitObjects[i], beatmap.HitObjects[i - 1], clockRate);
         }
 
-        protected override Skill[] CreateSkills(IBeatmap beatmap)
+        protected override Skill[] CreateSkills(IBeatmap beatmap, Mod[] mods, double clockRate)
         {
             int columnCount = ((ManiaBeatmap)beatmap).TotalColumns;
 

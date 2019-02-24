@@ -22,6 +22,11 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
         public double JumpDistance { get; private set; }
 
         /// <summary>
+        /// Raw distance from the end position of the previous <see cref="OsuDifficultyHitObject"/> to the start position of this <see cref="OsuDifficultyHitObject"/>.
+        /// </summary>
+        public double RawJumpDistance { get; private set; }
+
+        /// <summary>
         /// Normalized distance between the start and end position of the previous <see cref="OsuDifficultyHitObject"/>.
         /// </summary>
         public double TravelDistance { get; private set; }
@@ -38,16 +43,19 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
         public readonly double StrainTime;
 
         private readonly OsuHitObject lastLastObject;
+        private readonly OsuHitObject hitObject;
         private readonly OsuHitObject lastObject;
 
         public OsuDifficultyHitObject(HitObject hitObject, HitObject lastLastObject, HitObject lastObject, double clockRate)
             : base(hitObject, lastObject, clockRate)
         {
+            this.hitObject = (OsuHitObject)hitObject;
             this.lastLastObject = (OsuHitObject)lastLastObject;
             this.lastObject = (OsuHitObject)lastObject;
 
             setDistances();
-            setCombo((OsuHitObject)hitObject, this.lastObject, this.lastLastObject);
+            setCombo();
+            setIndex();
 
             // Every strain interval is hard capped at the equivalent of 375 BPM streaming speed as a safety measure
             StrainTime = Math.Max(50, DeltaTime);
@@ -73,8 +81,11 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
 
             // Don't need to jump to reach spinners
             if (!(BaseObject is Spinner))
+            {
                 JumpDistance = (BaseObject.StackedPosition * scalingFactor - lastCursorPosition * scalingFactor).Length;
-
+                RawJumpDistance = (BaseObject.StackedPosition - lastCursorPosition).Length;
+            }
+                
             if (lastLastObject != null)
             {
                 Vector2 lastLastCursorPosition = getEndCursorPosition(lastLastObject);
@@ -89,13 +100,13 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
             }
         }
 
-        private void setCombo(OsuHitObject current, OsuHitObject last, OsuHitObject lastLast)
+        private void setCombo()
         {
-            if (lastLast == null)
+            if (this.lastLastObject == null)
             {
-                last.CumulativeCombo = getCombo(last);
+                this.lastObject.CumulativeCombo = getCombo(this.lastObject);
             }
-            current.CumulativeCombo = last.CumulativeCombo + getCombo(current);
+            this.hitObject.CumulativeCombo = this.lastObject.CumulativeCombo + getCombo(this.hitObject);
         }
 
         private double getCombo(OsuHitObject hitObject)
@@ -108,6 +119,14 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Preprocessing
             {
                 return 1;
             }
+        }
+        private void setIndex()
+        {
+            if (this.lastLastObject == null)
+            {
+                this.lastObject.ObjectIndex = 0;
+            }
+            this.hitObject.ObjectIndex = this.lastObject.ObjectIndex + 1;
         }
 
         private void computeSliderCursorPosition(Slider slider)

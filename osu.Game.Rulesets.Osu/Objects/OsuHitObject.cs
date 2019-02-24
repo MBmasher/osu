@@ -62,6 +62,8 @@ namespace osu.Game.Rulesets.Osu.Objects
 
         public virtual int ComboIndex { get; set; }
 
+        public virtual int ObjectIndex { get; set; }
+
         public virtual double CumulativeCombo { get; set; }
 
         public bool LastInCombo { get; set; }
